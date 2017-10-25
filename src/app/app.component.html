@@ -1,7 +1,7 @@
 <button mat-raised-button color="primary" (click)="gridMode()">Test</button>
 <div class="grid-holder">
-  <mat-grid-list [cols]="numCol" [rowHeight]="rowHeight + 'px'">
-    <mat-grid-tile
+  <mat-grid-list [cols]="numCol" [rowHeight]="rowHeight + 'px'" gutterSize="10px" [ngClass]="isGridMode ? 'fade-grid' : ''">
+    <mat-grid-tile (click)="pickupTile(tile)"
         *ngFor="let tile of tiles"
         [colspan]="tile.cols"
         [rowspan]="tile.rows"
@@ -9,8 +9,17 @@
       {{tile.text}}
     </mat-grid-tile>
   </mat-grid-list>
-  <mat-grid-list class="placement-grid" [cols]="numCol" [rowHeight]="rowHeight + 'px'" *ngIf="isGridMode">
-    <mat-grid-tile></mat-grid-tile>
+  <mat-grid-list class="placement-grid" [cols]="numCol" [rowHeight]="rowHeight + 'px'" gutterSize="10px" *ngIf="isGridMode">
+    <mat-grid-tile
+        *ngFor="let tile of tempTiles"
+        [colspan]="tile.cols"
+        [rowspan]="tile.rows"
+        [style.background]="tile.color">
+      {{tile.text}}
+    </mat-grid-tile>
+  </mat-grid-list>
+  <mat-grid-list class="placement-grid outline" [cols]="numCol" [rowHeight]="rowHeight + 'px'" *ngIf="isGridMode" gutterSize="10px">
+    <mat-grid-tile *ngFor="let placeholder of placeholders" [colspan]="1" [rowspan]="1" (mouseover)="placeholderHover(placeholder)" (click)="dropTile(placeholder)"></mat-grid-tile>
   </mat-grid-list>
 </div>
 

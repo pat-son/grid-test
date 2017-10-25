@@ -1,9 +1,19 @@
 .grid-holder {
     position: relative;
+    width: 100%;
 }
 
 .placement-grid {
     position: absolute;
     top: 0;
     left: 0;
+    width: 100%;
+}
+
+.outline mat-grid-tile {
+    outline: 2px dotted green;
+}
+
+.fade-grid {
+    opacity: .4;
 }
