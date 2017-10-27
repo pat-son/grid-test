@@ -34,6 +34,7 @@ export class AppComponent implements OnInit {
   }
 
   public pickupTile(tile: any) {
+    if(tile.id === 0) return;
     this.tileHeld = tile;
     this.isGridMode = true;
   }
@@ -51,6 +52,7 @@ export class AppComponent implements OnInit {
   public dropTile(placeholder: any) {
     let col = placeholder.col;
     let row = placeholder.row;
+    this.tiles = this.tiles.filter((tile) => tile.id !== 0);
     [col, row] = this.nudgeToFit(this.gridState, this.tileHeld, col, row);
     let newGridState = [];
     for(let r = 0; r < row + this.tileHeld.rows; r++) {
@@ -59,18 +61,14 @@ export class AppComponent implements OnInit {
     }
     this.writeTile(newGridState, col, row, this.tileHeld);
     let newIndex = this.getInsertionPoint(newGridState, this.tileHeld);
-    console.log(newIndex, newGridState);
-    let index = 0;
+    console.log('new Grid State', newIndex, newGridState);
     let newArray = [];
+    let tileSet = this.scanGridState(newGridState, newArray, this.tiles);
     for(let tile of this.tiles) {
-      if(index === newIndex) {
-        newArray.push(this.tileHeld);
-        index += 1;
+      if(!tileSet.has(tile.id)) {
+        tileSet.add(tile.id);
+        newArray.push(tile);
       }
-      if(tile.id === this.tileHeld.id) continue;
-      newArray.push(tile);
-      console.log(index, JSON.stringify(newArray));
-      index += 1;
     }
     this.tiles = newArray;
     this.gridState = [];
@@ -79,6 +77,7 @@ export class AppComponent implements OnInit {
   }
 
   private initGridState(array: any[][]) {
+    this.tiles = this.tiles.filter((tile) => tile.id !== 0);
     array.push([]);
     for(let i = 0; i < this.numCol; i++) array[0].push(0);
     let headCol = 0;
@@ -130,6 +129,10 @@ export class AppComponent implements OnInit {
       }
 
     });
+
+    let newArray = [];
+    this.scanGridState(array, newArray, this.tiles, true);
+    this.tiles = newArray;
 
     let stateStr = '';
     this.placeholders = [];
@@ -232,6 +235,23 @@ export class AppComponent implements OnInit {
     while(this.numCol - col < tile.cols) col -= 1;
     while(array.length - row < tile.rows) row -= 1;
     return [col, row];
+  }
+
+  private scanGridState(array: any[][], newArray: any[], oldArray: any[], addSpacer?: boolean) {
+    let set = new Set();
+    for(let row = 0; row < array.length; row++) {
+      for(let col = 0; col < array[0].length; col++) {
+        if(array[row][col] === 0) {
+          if(addSpacer) newArray.push({text: 'spacer', cols: 1, rows: 1, color: 'rgba(0,0,0,0)', id: 0});
+          continue;
+        }
+        if(!set.has(array[row][col])) {
+          set.add(array[row][col]);
+          newArray.push(oldArray.find(tile => tile.id === array[row][col]));
+        }
+      }
+    }
+    return set;
   }
 
 }
